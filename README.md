@@ -1,4 +1,4 @@
 # Strave.io-xray
-Starve.io xray with its gui. key can be changed and opacity
+Starve.io and Devast.io xray with its gui. key can be changed and opacity
 https://raw.githubusercontent.com/uzumymwuzumymw123/Strave.io-xray/main/user.userscript.js 
 enjoy.
