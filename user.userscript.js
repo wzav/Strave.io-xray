@@ -1,12 +1,14 @@
 // ==UserScript==
-// @name         xray
-// @version      2024-08-06
+// @name         xray for starve.io and devast.io
+// @version      2024-08-10
 // @description  this wont be an end of world trust me
+// @match        https://devast.io/*
 // @match        https://starve.io/*
 // @require      https://unpkg.com/guify@0.12.0/lib/guify.min.js
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
+
 let log = console.log;
 
 let Settings = {
@@ -18,17 +20,22 @@ let Settings = {
 };
 
 document.addEventListener("keydown", (evt) => {
-    if (evt.code === Settings.xray.key) {
+    if(evt.code === Settings.xray.key) {
         Settings.xray.enabled = !Settings.xray.enabled;
     }
 });
+let ctx
 
 function xray() {
-    let ctx = document.querySelector("canvas").getContext("2d");
+    if(window.location.href === "https://starve.io") {
+        ctx = document.querySelector("canvas").getContext("2d");
+    } else {
+        ctx = document.getElementById("can").getContext("2d");
+    }
     const DrawImage = ctx.drawImage;
 
     ctx.drawImage = function() {
-        if (Settings.xray.enabled) {
+        if(Settings.xray.enabled) {
             ctx.globalAlpha = Settings.xray.opacity;
         }
         DrawImage.apply(ctx, arguments);
@@ -68,8 +75,7 @@ const guisif = {
         });
 
         const Tab = " ";
-        GUI.Register([
-            {
+        GUI.Register([{
                 type: "checkbox",
                 label: Tab + 'Xray',
                 object: Settings.xray,
@@ -113,7 +119,7 @@ const guisif = {
 
             document.addEventListener("keydown", function onKeyDown(event) {
                 keyPressCount++;
-                if (keyPressCount >= 1) {
+                if(keyPressCount >= 1) {
                     Settings[property].key = event.code === "Escape" ? "NONE" : event.code;
                     document.removeEventListener("keydown", onKeyDown);
                     guisif.saveSettings();
@@ -123,15 +129,15 @@ const guisif = {
     },
 
     saveSettings: () => {
-        for (let key in Settings) {
+        for(let key in Settings) {
             localStorage.setItem(key + "danb", JSON.stringify(Settings[key]));
         }
     },
 
     loadSettings: () => {
-        for (let key in Settings) {
+        for(let key in Settings) {
             let storedSetting = localStorage.getItem(key + "danb");
-            if (storedSetting) {
+            if(storedSetting) {
                 Settings[key] = JSON.parse(storedSetting);
             }
         }
@@ -145,37 +151,70 @@ const guisif = {
     }
 }
 
-function removeAds() {
-    let adFrame = document.getElementById("ssIFrame_google");
+let removeAds = () => {
     let prerollAd = document.getElementById("preroll");
-    let trevdaAd = document.getElementById("trevda");
-    let style = document.createElement("style");
+    if(window.location.href === "https://devast.io") {
+        let trevdaAd = document.getElementById("trevda");
+        let style = document.createElement("style");
+        style.innerHTML = ".grecaptcha-badge { visibility: hidden; }";
+        document.head.appendChild(style);
+        if(trevdaAd) trevdaAd.remove();
+    }
+    if(prerollAd) prerollAd.remove();
 
-    if (prerollAd) prerollAd.remove();
-    if (trevdaAd) trevdaAd.remove();
-    style.innerHTML = ".grecaptcha-badge { visibility: hidden; }";
-    document.head.appendChild(style);
+    const observer = new MutationObserver(function(mutations) {
+        for(const mutation of mutations) {
+            for(const node of mutation.addedNodes) {
+                if(
+                    node.src &&
+                    (
+                        node.src.includes("server.cmpstar.net") ||
+                        node.src.includes("sdk.truepush.com") ||
+                        node.src.includes("sdki.truepush.com") ||
+                        node.src.includes("adinplay") ||
+                        node.src.includes("amazon-adsystem.com") ||
+                        node.src.includes("www.google-analytics.com") ||
+                        node.src.includes("ib.adnxs.com") ||
+                        node.src.includes("targeting.unrulymedia.com") ||
+                        node.src.includes("www.google-analytics.com") ||
+                        node.src.includes("pagead2.googlesyndication.com") ||
+                        node.src.includes("doubleclick.net") ||
+                        node.src.includes("script.4dex.io")
+                    )
+                ) {
+                    node.src = "";
+                    node.innerHTML = "";
+                    node.textContent = "";
+                }
 
-new MutationObserver((function(e){for(const c of e)for(const e of c.addedNodes)e.src&&(e.src.includes("server.cmpstar.net")||e.src.includes("sdk.truepush.com")||e.src.includes("sdki.truepush.com")||e.src.includes("adinplay")||e.src.includes("amazon-adsystem.com")||e.src.includes("www.google-analytics.com")||e.src.includes("ib.adnxs.com")||e.src.includes("targeting.unrulymedia.com")||e.src.includes("www.google-analytics.com")||e.src.includes("pagead2.googlesyndication.com")||e.src.includes("doubleclick.net")||e.src.includes("script.4dex.io"))&&(e.src="",e.innerHTML="",e.textContent=""),"wg-ad-container"===e.className&&setTimeout((function(){const e=document.querySelector(".wg-ad-player");e.currentTime=20,e.parentElement.style.display="none"}),1)})).observe(document,{childList:!0,attributes:!0,subtree:!0});
+                if(node.className === "wg-ad-container") {
+                    setTimeout(function() {
+                        const ad = document.querySelector(".wg-ad-player");
+                        ad.currentTime = 20;
+                        const holder = ad.parentElement;
+                        holder.style.display = 'none';
+                    }, 1);
+                }
+            }
+        }
+    });
+
+    observer.observe(document, {
+        childList: true,
+        attributes: true,
+        subtree: true
+    });
 
 }
 
 function checker() {
-    let chat = document.getElementById("chat_block");
 
     window.dc = atob("d3p2dg==");
+    removeAds()
+    xray();
+    guisif.loadHack();
+    log("r");
 
-    let preroll = document.getElementById("preroll");
-    let trevda = document.getElementById("trevda");
-
-    if (chat && preroll && trevda) {
-        setTimeout(removeAds, 5000);
-        xray();
-        guisif.loadHack();
-        log("r");
-    } else {
-        requestAnimationFrame(checker);
-    }
 }
 
-checker();
+setTimeout(checker, 4000)
