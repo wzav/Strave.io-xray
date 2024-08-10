@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         xray for starve.io and devast.io
-// @version      2024-08-10
+// @version      2024-08-06
 // @description  this wont be an end of world trust me
 // @match        https://devast.io/*
 // @match        https://starve.io/*
@@ -8,7 +8,6 @@
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
-
 let log = console.log;
 
 let Settings = {
@@ -27,7 +26,7 @@ document.addEventListener("keydown", (evt) => {
 let ctx
 
 function xray() {
-    if(window.location.href === "https://starve.io") {
+    if(window.location.href === "https://starve.io/") {
         ctx = document.querySelector("canvas").getContext("2d");
     } else {
         ctx = document.getElementById("can").getContext("2d");
@@ -153,7 +152,7 @@ const guisif = {
 
 let removeAds = () => {
     let prerollAd = document.getElementById("preroll");
-    if(window.location.href === "https://devast.io") {
+    if(window.location.href !== "https://devast.io/") {
         let trevdaAd = document.getElementById("trevda");
         let style = document.createElement("style");
         style.innerHTML = ".grecaptcha-badge { visibility: hidden; }";
@@ -217,4 +216,4 @@ function checker() {
 
 }
 
-setTimeout(checker, 4000)
+setTimeout(checker, 5000)
